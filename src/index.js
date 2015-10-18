@@ -1,5 +1,7 @@
 // -*- coding: utf-8 -*-
 var m = require('mithril');
+var views = require('msx-loader!./views.msx');
+
 
 var Page = {
     list: function (){

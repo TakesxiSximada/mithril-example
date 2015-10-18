@@ -46,6 +46,8 @@
 
 	// -*- coding: utf-8 -*-
 	var m = __webpack_require__(1);
+	var views = __webpack_require__(3);
+
 
 	var Page = {
 	    list: function (){
@@ -1257,6 +1259,25 @@
 		return module;
 	}
 
+
+/***/ },
+/* 3 */
+/***/ function(module, exports) {
+
+	// -*- coding: utf-8 -*-
+	function page_list(ctl){
+	    return {tag: "ul", attrs: {}, children: [
+	    ctl.pages().map(page_link),
+	    m('button', {onclick: ctrl.rotate}, 'Rotate links')
+	    ]};
+
+	};
+	function page_link(page){
+	    return {tag: "li", attrs: {}, children: [
+	      {tag: "a", attrs: {href:"{page.url}"}, children: [page.title]}
+	    ]};
+	};
+	module.exports.page_list = page_list;
 
 /***/ }
 /******/ ]);

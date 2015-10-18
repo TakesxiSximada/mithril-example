@@ -1,0 +1,14 @@
+// -*- coding: utf-8 -*-
+function page_list(ctl){
+    return <ul>
+    {ctl.pages().map(page_link)}
+    {m('button', {onclick: ctrl.rotate}, 'Rotate links')}
+    </ul>;
+
+};
+function page_link(page){
+    return <li>
+      <a href="{page.url}">{page.title}</a>
+    </li>;
+};
+module.exports.page_list = page_list;
