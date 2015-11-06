@@ -1,14 +1,53 @@
 // -*- coding: utf-8 -*-
-function page_list(ctl){
-    return <ul>
-    {ctl.pages().map(page_link)}
-    {m('button', {onclick: ctrl.rotate}, 'Rotate links')}
-    </ul>;
+var m = require('mithril');
 
+function page_create(ctl){
+    return <form>
+      <p><label>title</label><input /></p>
+      <p><label>description</label><textarea /></p>
+      <button type="submit">save</button>
+    </form>
 };
+
+function edit(ctl){
+    return <form>
+      <p><label>title</label><input /></p>
+      <p><label>description</label><textarea /></p>
+      <button type="submit">save</button>
+    </form>
+};
+
+function show(ctl){
+    var page = ctl.page();
+    if (page){
+        return <div>
+        <p><label>id</label>{page.id()}</p>
+        <p><label>title</label>{page.title()}</p>
+        <p><label>description</label>{page.description()}</p>
+        <button type="submit">edit</button>
+        </div>;
+    } else {
+        return <div>Loading...</div>;
+    }
+};
+
+function page_list(ctl){
+    var pages = ctl.pages();
+    return <div>
+      {m('button', {onclick: ctl.rotate}, 'Rotate links')}
+      {m('button', {onclick: ctl.jump_create}, 'create')}
+      <ul>
+        {pages.map(page_link)}
+      </ul>
+    </div>;
+};
+
 function page_link(page){
     return <li>
-      <a href="{page.url}">{page.title}</a>
+     <a href={'?/show/' + page.id()}>{page.title()}</a>
     </li>;
 };
 module.exports.page_list = page_list;
+module.exports.page_create = page_create;
+module.exports.show = show;
+module.exports.edit = edit;
