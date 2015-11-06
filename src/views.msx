@@ -1,20 +1,29 @@
 // -*- coding: utf-8 -*-
 var m = require('mithril');
 
-function page_create(ctl){
-    return <form>
-      <p><label>title</label><input /></p>
-      <p><label>description</label><textarea /></p>
-      <button type="submit">save</button>
-    </form>
-};
 
 function edit(ctl){
-    return <form>
-      <p><label>title</label><input /></p>
-      <p><label>description</label><textarea /></p>
-      <button type="submit">save</button>
-    </form>
+    var page = ctl.page();
+    if(ctl.is_create || ctl.page){
+        return <div>
+          <p>
+            <label>id</label>
+            <div>{page.id()}</div>
+          </p>
+          <p>
+            <label>title</label>
+            {m('input', {onchange: m.withAttr('value', page.title), value: page.title()})}
+          </p>
+          <p>
+            <label>description</label>
+            {m('textarea', {onchange: m.withAttr('value', page.description), value: page.description()})}
+          </p>
+          {m('button', {onclick: ctl.save}, 'save')}
+        </div>;
+
+    }else{
+        return <div>Loading...</div>;
+    }
 };
 
 function show(ctl){
@@ -24,30 +33,40 @@ function show(ctl){
         <p><label>id</label>{page.id()}</p>
         <p><label>title</label>{page.title()}</p>
         <p><label>description</label>{page.description()}</p>
-        <button type="submit">edit</button>
+        {m('button', {onclick: ctl.go_edit}, 'edit')}
+        {m('button', {onclick: ctl.go_delete}, 'delete')}
         </div>;
     } else {
         return <div>Loading...</div>;
     }
 };
 
-function page_list(ctl){
+function list(ctl){
     var pages = ctl.pages();
     return <div>
-      {m('button', {onclick: ctl.rotate}, 'Rotate links')}
       {m('button', {onclick: ctl.jump_create}, 'create')}
+      {m('button', {onclick: ctl.rotate}, 'reload')}
       <ul>
-        {pages.map(page_link)}
+        {pages.map(_page_link)}
       </ul>
     </div>;
 };
 
-function page_link(page){
+function _page_link(page){
     return <li>
      <a href={'?/show/' + page.id()}>{page.title()}</a>
     </li>;
 };
-module.exports.page_list = page_list;
-module.exports.page_create = page_create;
+
+function delete_(ctl){
+    return <p>
+        <p>削除してもよろしいですか?</p>
+        {m('button', {onclick: ctl.delete_}, 'YES')}
+        {m('button', {onclick: ctl.go_back}, 'NO')}
+    </p>;
+};
+
+module.exports.list = list;
 module.exports.show = show;
 module.exports.edit = edit;
+module.exports.delete_ = delete_;
