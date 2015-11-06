@@ -46,192 +46,16 @@
 
 	// -*- coding: utf-8 -*-
 	var m = __webpack_require__(1);
-	var views = __webpack_require__(3);
+	var pages_components = __webpack_require__(3);
 
-
-	// .
-
-	// var Page = {
-	//     get: function (){
-	//         return m.request({method: 'GET', url: 'api/pages/show.json'});
-	//     },
-	//     list: function (){
-	//         return m.request({method: 'GET', url: 'api/pages/list.json'});
-	//     },
-	// };
-
-	// var Demo = {
-	//     controller: function (){
-	//         var pages = Page.list();
-	//         return {
-	//             pages: pages,
-	//             rotate: function(){
-	//                 pages().push(pages().shift());
-	//             },
-	//             redirect_show_page: function(page){
-	//                 m.route('/show/' + page.id);
-	//             },
-	//         };
-	//     },
-	//     view: function (ctrl){
-	//         return m('ul', [
-	//             ctrl.pages().map(function (page){
-	//                 return m('li', m('a', {
-	//                     href: "/?/show/" + page.id,
-	//                 }, page.title));
-	//             }),
-	//             m('button', {onclick: ctrl.rotate}, 'Rotate links'),
-	//         ]);
-	//     },
-	// };
-	// var Show = {
-	//     controller: function(){
-	//         var page_id = m.route.param('page_id');
-	//         return {
-	//             page: m.prop(Page.get(page_id)),
-	//         };
-	//     },
-	//     view: function(ctrl){
-	//         var page = ctrl.page();
-	//         return m('div', [
-	//             m('p', page.title),
-	//             m('p', page.url),
-	//             m('p', page.desciption),
-	//         ]);
-	//     },
-	// };
-	// m.route(document.querySelector('body'), '/', {
-	//     '/': Demo,
-	//     '/show/:page_id:': Show,
-	// });
-	// m.mount(document.querySelector('body'), Demo);
-
-	m.mount(document.querySelector('#first'), {
-	    controller: function (){
-	        return {};
-	    },
-	    view: function (ctl){
-	        return m('h1', 'first');
-	    },
-	});
-
-	m.mount(document.querySelector('#second'), {
-	    controller: function (){
-	        return {};
-	    },
-	    view: function (ctl){
-	        return m('h1', 'second');
-	    },
-	});
-
-	// model
-
-
-	var Page = function (data){
-	    this.id = m.prop(data.id);
-	    this.url = m.prop(data.url);
-	    this.title = m.prop(data.title);
-	    this.description = m.prop(data.description);
-	};
-	Page.prototype.save = function (){
-	    console.log('saving...');
-	    var url = this.id() == null ? EndpointURL.create : EndpointURL.update;
-	    return m.request({method: 'GET', url: url})
-	        .then(pages_factory);
-	    console.log('saved!!');
-	}
-
-	function page_factory(data){
-	    return new Page(data);
-	}
-
-	function pages_factory(datas){
-	    return datas.map(page_factory);
-	}
-
-
-	Page.query = {
-	    search: function (){
-	        return m.request({method: 'GET', url: EndpointURL.search})
-	            .then(pages_factory);
-	    },
-	    get: function (id){
-	        return m.request({method: 'GET', url: EndpointURL.read + '?page_id=' +  id})
-	            .then(function (pages){
-	                return pages[0];  // first
-	            }).then(page_factory);
-	    },
-	};
-
-
-
-	var EndpointURL = {
-	    create: '/api/pages/create.json',
-	    read: '/api/pages/read.json',
-	    update: '/api/pages/update.json',
-	    delete_: '/api/pages/delete.json',
-	    search: '/api/pages/search.json',
-	};
-
-
-	var PageList = Array;
-
-
-	function pages_controller(){
-	    var pages = m.prop(new PageList());
-	    var update_pages = function (){
-	        Page.query.search().then(function (_pages){
-	            pages(_pages);
-	        });
-	    };
-	    update_pages();
-
-	    return {
-	        pages: pages,
-	        rotate: function (){
-	            update_pages();
-	        },
-	        jump_create: function (){
-	            m.route('/create');
-	        }
-	    };
-	}
 
 	m.route(document.querySelector('#pages'), '/', {
-	    '/': {
-	        controller: pages_controller,
-	        view: views.page_list,
-	    },
-	    '/create': {
-	        controller: null,
-	        view: views.page_create,
-	    },
-	    '/show/:page_id:': {
-	        controller: function (){
-	            var page = m.prop();
-	            var page_id = m.route.param('page_id');
-	            Page.query.get(id=page_id)
-	                .then(page);
-
-	            return {
-	                page: page,
-	            };
-	        },
-	        view: views.show,
-	    },
-	    '/update': {
-	        controller: pages_controller,
-	        view: views.page_create,
-	    },
-	    '/delete': {
-	        controller: pages_controller,
-	        view: views.page_list,
-	    },
+	    '/': pages_components.list_page,
+	    '/create': pages_components.create_page,
+	    '/show/:page_id:': pages_components.show_page,
+	    '/update/:page_id:': pages_components.update_page,
+	    '/delete/:page_id:': pages_components.delete_page,
 	});
-	// m.mount(document.querySelector('#pages'), {
-	//     controller: pages_controller,
-	//     view: views.page_list,
-	// });
 
 
 /***/ },
@@ -1421,14 +1245,67 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	// -*- coding: utf-8 -*-
+	var views = __webpack_require__(4);
+	var controllers = __webpack_require__(5);
+
+	var list_page = {
+	    view: views.list,
+	    controller: controllers.list,
+	};
+	var create_page = {
+	    view: views.edit,
+	    controller: controllers.create,
+	};
+	var show_page = {
+	    view: views.show,
+	    controller: controllers.show,
+	};
+	var update_page = {
+	    view: views.edit,
+	    controller: controllers.update,
+	};
+	var delete_page = {
+	    view: views.delete_,
+	    controller: controllers.delete_,
+	};
+
+	module.exports.list_page = list_page;
+	module.exports.create_page = create_page;
+	module.exports.show_page = show_page;
+	module.exports.update_page = update_page;
+	module.exports.delete_page = delete_page;
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// -*- coding: utf-8 -*-
 	var m = __webpack_require__(1);
 
-	function page_create(ctl){
-	    return {tag: "form", attrs: {}, children: [
-	      {tag: "p", attrs: {}, children: [{tag: "label", attrs: {}, children: ["title"]}, {tag: "input", attrs: {}}]}, 
-	      {tag: "p", attrs: {}, children: [{tag: "label", attrs: {}, children: ["description"]}, {tag: "textarea", attrs: {}}]}, 
-	      {tag: "button", attrs: {type:"submit"}, children: ["save"]}
-	    ]}
+
+	function edit(ctl){
+	    var page = ctl.page();
+	    if(ctl.is_create || ctl.page){
+	        return {tag: "div", attrs: {}, children: [
+	          {tag: "p", attrs: {}, children: [
+	            {tag: "label", attrs: {}, children: ["id"]}, 
+	            {tag: "div", attrs: {}, children: [page.id()]}
+	          ]}, 
+	          {tag: "p", attrs: {}, children: [
+	            {tag: "label", attrs: {}, children: ["title"]}, 
+	            m('input', {onchange: m.withAttr('value', page.title), value: page.title()})
+	          ]}, 
+	          {tag: "p", attrs: {}, children: [
+	            {tag: "label", attrs: {}, children: ["description"]}, 
+	            m('textarea', {onchange: m.withAttr('value', page.description), value: page.description()})
+	          ]}, 
+	          m('button', {onclick: ctl.save}, 'save')
+	        ]};
+
+	    }else{
+	        return {tag: "div", attrs: {}, children: ["Loading..."]};
+	    }
 	};
 
 	function show(ctl){
@@ -1438,32 +1315,225 @@
 	        {tag: "p", attrs: {}, children: [{tag: "label", attrs: {}, children: ["id"]}, page.id()]}, 
 	        {tag: "p", attrs: {}, children: [{tag: "label", attrs: {}, children: ["title"]}, page.title()]}, 
 	        {tag: "p", attrs: {}, children: [{tag: "label", attrs: {}, children: ["description"]}, page.description()]}, 
-	        {tag: "button", attrs: {type:"submit"}, children: ["edit"]}
+	        m('button', {onclick: ctl.go_edit}, 'edit'),
+	        m('button', {onclick: ctl.go_delete}, 'delete')
 	        ]};
 	    } else {
 	        return {tag: "div", attrs: {}, children: ["Loading..."]};
 	    }
 	};
 
-	function page_list(ctl){
+	function list(ctl){
 	    var pages = ctl.pages();
 	    return {tag: "div", attrs: {}, children: [
-	      m('button', {onclick: ctl.rotate}, 'Rotate links'),
 	      m('button', {onclick: ctl.jump_create}, 'create'),
+	      m('button', {onclick: ctl.rotate}, 'reload'),
 	      {tag: "ul", attrs: {}, children: [
-	        pages.map(page_link)
+	        pages.map(_page_link)
 	      ]}
 	    ]};
 	};
 
-	function page_link(page){
+	function _page_link(page){
 	    return {tag: "li", attrs: {}, children: [
 	     {tag: "a", attrs: {href:'?/show/' + page.id()}, children: [page.title()]}
 	    ]};
 	};
-	module.exports.page_list = page_list;
-	module.exports.page_create = page_create;
+
+	function delete_(ctl){
+	    return {tag: "p", attrs: {}, children: [
+	        {tag: "p", attrs: {}, children: ["削除してもよろしいですか?"]}, 
+	        m('button', {onclick: ctl.delete_}, 'YES'),
+	        m('button', {onclick: ctl.go_back}, 'NO')
+	    ]};
+	};
+
+	module.exports.list = list;
 	module.exports.show = show;
+	module.exports.edit = edit;
+	module.exports.delete_ = delete_;
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// -*- coding: utf-8 -*-
+	var m = __webpack_require__(1);
+	var models = __webpack_require__(6);
+	var Page = models.Page;
+	var PageList = models.PageList;
+
+
+	function list(){
+	    var pages = m.prop(new PageList());
+	    var update_pages = function (){
+	        Page.query.search().then(function (_pages){
+	            pages(_pages);
+	        });
+	    };
+	    update_pages();
+
+	    return {
+	        pages: pages,
+	        rotate: function (){
+	            update_pages();
+	        },
+	        jump_create: function (){
+	            m.route('/create');
+	        }
+	    };
+	}
+
+
+	function create(){
+	    var page = m.prop(new Page());
+	    return {
+	        page: page,
+	        save: function (){
+	            page().save().then(function (page_){
+	                m.route('/show/' + page_[0].id());
+	            });
+	        },
+	    };
+	}
+
+	function show(){
+	    var page = m.prop();
+	    var page_id = m.route.param('page_id');
+	    Page.query.get(id=page_id)
+	        .then(page);
+
+	    return {
+	        page: page,
+	        go_edit: function (){
+	            m.route('/update/' + page_id);
+	        },
+	        go_delete: function (){
+	            m.route('/delete/' + page_id);
+	        },
+	    };
+
+	}
+
+	function update(){
+	    var page = m.prop();
+	    var page_id = m.route.param('page_id');
+	    Page.query.get(id=page_id)
+	        .then(page);
+
+	    return {
+	        page: page,
+	        save: function (){
+	            page().save().then(function(_){
+	                m.route('/show/' + page_id);
+	            });
+	        },
+	    };
+	}
+
+
+	function delete_() {
+	    var page = m.prop();
+	    var page_id = m.route.param('page_id');
+	    Page.query.get(id=page_id)
+	        .then(page);
+	    return {
+	        delete_: function(){
+	            page().delete_();
+	            m.route('/');
+	        },
+	        go_back: function(){
+	            m.route('/show/' + page_id);
+	        },
+	    };
+	}
+
+
+	module.exports.list = list;
+	module.exports.create = create;
+	module.exports.show = show;
+	module.exports.update = update;
+	module.exports.delete_ = delete_;
+
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// -*- coding: utf-8 -*-
+	var m = __webpack_require__(1);
+	var EndpointURL = __webpack_require__(7).EndpointURL;
+
+
+	var Page = function (data){
+	    data = data ? data : {};
+	    this.id = m.prop(data.id || '');
+	    this.url = m.prop(data.url || '');
+	    this.title = m.prop(data.title || '');
+	    this.description = m.prop(data.description || '');
+	};
+
+
+	Page.prototype.save = function (){
+	    console.log('saving...');
+	    var url = this.id() == null ? EndpointURL.create : EndpointURL.update;
+	    return m.request({method: 'GET', url: url})
+	        .then(pages_factory);
+	};
+
+
+	Page.prototype.delete_ = function (){
+	    console.log('delete');
+	};
+
+
+	function page_factory(data){
+	    return new Page(data);
+	}
+
+
+	function pages_factory(datas){
+	    return datas.map(page_factory);
+	}
+
+
+	Page.query = {
+	    search: function (){
+	        return m.request({method: 'GET', url: EndpointURL.search})
+	            .then(pages_factory);
+	    },
+	    get: function (id){
+	        return m.request({method: 'GET', url: EndpointURL.read + '?page_id=' +  id})
+	            .then(function (pages){
+	                return pages[0];  // first
+	            }).then(page_factory);
+	    },
+	};
+
+
+
+	var PageList = Array;
+
+	module.exports.Page = Page;
+	module.exports.PageList = PageList;
+
+
+/***/ },
+/* 7 */
+/***/ function(module, exports) {
+
+	// -*- coding: utf-8 -*-
+	var EndpointURL = {
+	    create: '/api/pages/create.json',
+	    read: '/api/pages/read.json',
+	    update: '/api/pages/update.json',
+	    delete_: '/api/pages/delete.json',
+	    search: '/api/pages/search.json',
+	};
+
+	module.exports.EndpointURL = EndpointURL;
+
 
 /***/ }
 /******/ ]);
